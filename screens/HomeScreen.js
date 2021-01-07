@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+import dicitionary from '../DataBase'
 
 export default class HomeScreen extends React.Component {
   constructor() {
@@ -13,44 +14,32 @@ export default class HomeScreen extends React.Component {
     this.state = {
       text: '',
       displayText: '',
+      word:'',
+      definition:'',
+      lexicalCategory:'',
     };
   }
 
-  getWord = (word) => {
-    var searchKeyword = word.toLowerCase();
-    var url =
-      'https://rupinwhitehatjr.github.io/dictionary/' + searchKeyword + '.json';
-    return fetch(url)
-      .then((data) => {
-        if (data.status === 200) {
-          return data.json();
-        } else {
-          return null;
-        }
+  getWord = (text) => {
+     text = text.toLowerCase();
+    try{
+      var word = dicitionary[text]["word"]
+      var definition = dicitionary[text]["definition"]
+      var lexicalCategory = dicitionary[text]["lexicalCategory"]
+      this.setState = ({
+        "word" : word,
+        "lexicalCategory" : lexicalCategory,
+        "definition" :definition
       })
-      .then((response) => {
-        var responseObject = response;
-        if (responseObject) {
-          var wordData = responseObject.definations[0];
-          console.log(responseObject.definations[0]);
-          var defination = wordData.description;
-          var lexicalCategory = wordData.wordtype;
-          this.setState({
-            word: this.state.text,
-            defination: defination,
-            lexicalCategory: lexicalCategory,
-          });
-        } else {
-          this.setState({
-            word: this.state.text,
-            word: 'PLEASE ENTER THE CORRECT SPELLING :(',
-            lexicalCategory: 'NOT FOUND :(',
-            defination: 'NOT FOUND :(',
-          });
-        }
-      });
-  };
-
+    }
+    catch(err){
+      alert("THIS WORD IS NOT AVAILABLE FOR NOW")
+      this.setState =({
+        'text' : '',
+        'isSearchPressed' : false
+      })
+    }
+  }
   render() {
     return (
       <View style={styles.container}>
@@ -61,9 +50,9 @@ export default class HomeScreen extends React.Component {
               text: text,
               isSearchedPressed: false,
               word: 'Loading...',
-              lexicalCategory: '',
+              lexicalCategory: 'Loading...',
               examples: [],
-              defination: '',
+              definition: 'Loading...',
             });
           }}
           value={this.state.text}
@@ -76,6 +65,8 @@ export default class HomeScreen extends React.Component {
           onPress={() => {
             this.setState({ isSearchPressed: true });
             this.getWord(this.state.text);
+          console.log(this.state.text)
+            
           }}>
           <Text style={styles.buttonText}>SEARCH</Text>
         </TouchableOpacity>
@@ -91,8 +82,8 @@ export default class HomeScreen extends React.Component {
 
           <View>
             {/*  style={{ flexDirection: 'row' ,flexWrap: 'wrap'}}> */}
-            <Text style={styles.detailsTitle}>Defination: {'  '}</Text>
-            <Text style={{ fontSize: 18 }}>{this.state.defination}</Text>
+            <Text style={styles.detailsTitle}>Definition: {'  '}</Text>
+            <Text style={{ fontSize: 18 }}>{this.state.definition}</Text>
           </View>
         </View>
       </View>
